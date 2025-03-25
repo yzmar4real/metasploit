@@ -1,36 +1,28 @@
 services:
-  msf:
+  metasploit:
     image: metasploitframework/metasploit-framework:latest
     container_name: metasploit
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/msf?pool=200&timeout=5
-    ports:
-      - "4444:4444"  # Default port for Metasploit payloads; adjust as needed
-      - "8443-8500:8443-8500"  # Range for reverse shells or additional services
-    volumes:
-      - msf_data:/home/msf/.msf4  # Persist Metasploit config and loot
+    tty: true
+    stdin_open: true
     depends_on:
       - db
-    networks:
-      - msf_network
-    command: "./msfconsole"  # Starts Metasploit console; can be omitted for an interactive shell
+    environment:
+      # Set the database URL so Metasploit knows how to connect to the Postgres container
+      MSF_DATABASE_URL: postgresql://msf:msfpassword@db:5432/msf
+    # Optionally, if you plan to use Metasploit’s web services or want to expose ports,
+    # you can uncomment and adjust the following:
+    # ports:
+      - "3790:3790"
 
   db:
-    image: postgres:13-alpine
-    container_name: msf_db
+    image: postgres:12
+    container_name: metasploit_db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=msf
+      POSTGRES_USER: msf
+      POSTGRES_PASSWORD: msfpassword
+      POSTGRES_DB: msf
     volumes:
-      - db_data:/var/lib/postgresql/data  # Persist database data
-    networks:
-      - msf_network
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
-  msf_data:
-  db_data:
-
-networks:
-  msf_network:
-    driver: bridge
+  pgdata:
