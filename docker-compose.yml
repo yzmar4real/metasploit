@@ -12,7 +12,7 @@ services:
     # Optionally, if you plan to use Metasploit’s web services or want to expose ports,
     # you can uncomment and adjust the following:
     # ports:
-      - "3790:3790"
+    # - "3790:3790"
 
   db:
     image: postgres:12
